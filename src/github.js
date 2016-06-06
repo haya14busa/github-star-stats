@@ -16,7 +16,7 @@ export function user(access_token) {
     headers: headers,
   }
 
-  return fetch(request_url, options).then(r => r.json());
+  return fetch(request_url, options).then(handleErrors).then(r => r.json());
 }
 
 export function starsForRepo(author, repoName, access_token) {

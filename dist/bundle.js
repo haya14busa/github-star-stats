@@ -4168,7 +4168,7 @@ function user(access_token) {
     headers: headers
   };
 
-  return fetch(request_url, options).then(function (r) {
+  return fetch(request_url, options).then(handleErrors).then(function (r) {
     return r.json();
   });
 }
@@ -4233,6 +4233,12 @@ var OAUTHIO_PUBLIC_KEY = 'WdRy6SeDOWC_jbVGvM4caPaHSQQ';
 var GITHUB_ACCESS_TOKEN = '';
 var GITHUB_ACCESS_TOKEN_KEY = 'GITHUB_ACCESS_TOKEN';
 
+var DOM_CHART_CONTAINER = document.getElementById('js-chart-div');
+var DOM_AUTHORIZE_INFO = document.getElementById('authorize-info');
+var DOM_AUTHORIZE_INFO_USERNAME = document.getElementById('authorize-info--username');
+var DOM_AUTHORIZE_INFO_ICON = document.getElementById('authorize-info--icon');
+var DOM_AUTHORIZE_BUTTON = document.getElementById('authorize-button');
+
 _oauthioWeb.OAuth.initialize(OAUTHIO_PUBLIC_KEY);
 
 // Load the Visualization API and the linechart package.
@@ -4245,12 +4251,7 @@ function onLoadGoogleChartAPI() {
 
   var maybe_valid_access_token = localStorage.getItem(GITHUB_ACCESS_TOKEN_KEY);
   if (maybe_valid_access_token) {
-    (0, _github.user)(maybe_valid_access_token).then(function (response) {
-      GITHUB_ACCESS_TOKEN = maybe_valid_access_token;
-      console.log(response);
-      loadGitHubStarStats();
-    }).catch(function (error) {
-      localStorage.removeItem(GITHUB_ACCESS_TOKEN_KEY);
+    prosessAuthorization(maybe_valid_access_token).then(function (_) {
       loadGitHubStarStats();
     });
   } else {
@@ -4258,11 +4259,31 @@ function onLoadGoogleChartAPI() {
   }
 }
 
+// XXX: better naming...
+function prosessAuthorization(access_token) {
+  return (0, _github.user)(access_token).then(function (response) {
+    GITHUB_ACCESS_TOKEN = access_token;
+    localStorage.setItem(GITHUB_ACCESS_TOKEN_KEY, GITHUB_ACCESS_TOKEN);
+    console.log(response);
+    console.log(DOM_AUTHORIZE_INFO);
+    console.log(DOM_AUTHORIZE_BUTTON);
+    showAuthorizationInfo(response);
+  }).catch(function (error) {
+    localStorage.removeItem(GITHUB_ACCESS_TOKEN_KEY);
+  });
+}
+
+function showAuthorizationInfo(user) {
+  DOM_AUTHORIZE_INFO.style.display = 'block';
+  DOM_AUTHORIZE_BUTTON.style.display = 'none';
+  DOM_AUTHORIZE_INFO_USERNAME.innerText = user.login;
+  DOM_AUTHORIZE_INFO_ICON.src = user.avatar_url;
+}
+
 function authorizeGitHub() {
   _oauthioWeb.OAuth.popup('github').done(function (result) {
     console.log(result);
-    GITHUB_ACCESS_TOKEN = result.access_token;
-    localStorage.setItem(GITHUB_ACCESS_TOKEN_KEY, GITHUB_ACCESS_TOKEN);
+    prosessAuthorization(result.access_token);
   }).fail(function (err) {
     console.log(err);
   });
@@ -4292,8 +4313,7 @@ function drawChart(chart, data, options) {
 }
 
 function loadGitHubStarStats() {
-  var container = document.getElementById('js-chart-div');
-  var chart = new google.charts.Line(container);
+  var chart = new google.charts.Line(DOM_CHART_CONTAINER);
 
   //  /#/{author}/{repository}
 
@@ -4330,7 +4350,7 @@ function loadGitHubStarStats() {
     drawChart(chart, githubStarDataToGraphData(stars), options);
   }).catch(function (error) {
     console.log(error);
-    container.innerText = error;
+    DOM_CHART_CONTAINER.innerText = error;
   });
 }
 

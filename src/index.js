@@ -7,6 +7,12 @@ const OAUTHIO_PUBLIC_KEY = 'WdRy6SeDOWC_jbVGvM4caPaHSQQ';
 let GITHUB_ACCESS_TOKEN = '';
 const GITHUB_ACCESS_TOKEN_KEY = 'GITHUB_ACCESS_TOKEN';
 
+const DOM_CHART_CONTAINER = document.getElementById('js-chart-div');
+const DOM_AUTHORIZE_INFO = document.getElementById('authorize-info');
+const DOM_AUTHORIZE_INFO_USERNAME = document.getElementById('authorize-info--username');
+const DOM_AUTHORIZE_INFO_ICON = document.getElementById('authorize-info--icon');
+const DOM_AUTHORIZE_BUTTON = document.getElementById('authorize-button');
+
 OAuth.initialize(OAUTHIO_PUBLIC_KEY);
 
 // Load the Visualization API and the linechart package.
@@ -19,12 +25,7 @@ function onLoadGoogleChartAPI() {
 
   let maybe_valid_access_token = localStorage.getItem(GITHUB_ACCESS_TOKEN_KEY);
   if (maybe_valid_access_token) {
-    user(maybe_valid_access_token).then(response => {
-      GITHUB_ACCESS_TOKEN = maybe_valid_access_token;
-      console.log(response);
-      loadGitHubStarStats();
-    }).catch(error => {
-      localStorage.removeItem(GITHUB_ACCESS_TOKEN_KEY);
+    prosessAuthorization(maybe_valid_access_token).then(_ => {
       loadGitHubStarStats();
     });
   } else {
@@ -33,12 +34,32 @@ function onLoadGoogleChartAPI() {
 
 }
 
+// XXX: better naming...
+function prosessAuthorization(access_token) {
+  return user(access_token).then(response => {
+    GITHUB_ACCESS_TOKEN = access_token;
+    localStorage.setItem(GITHUB_ACCESS_TOKEN_KEY, GITHUB_ACCESS_TOKEN);
+    console.log(response);
+    console.log(DOM_AUTHORIZE_INFO);
+    console.log(DOM_AUTHORIZE_BUTTON);
+    showAuthorizationInfo(response);
+  }).catch(error => {
+    localStorage.removeItem(GITHUB_ACCESS_TOKEN_KEY);
+  });
+}
+
+function showAuthorizationInfo(user) {
+  DOM_AUTHORIZE_INFO.style.display = 'block';
+  DOM_AUTHORIZE_BUTTON.style.display = 'none';
+  DOM_AUTHORIZE_INFO_USERNAME.innerText = user.login;
+  DOM_AUTHORIZE_INFO_ICON.src = user.avatar_url;
+}
+
 function authorizeGitHub() {
   OAuth.popup('github')
     .done(function(result) {
       console.log(result);
-      GITHUB_ACCESS_TOKEN = result.access_token;
-      localStorage.setItem(GITHUB_ACCESS_TOKEN_KEY, GITHUB_ACCESS_TOKEN);
+      prosessAuthorization(result.access_token);
     })
   .fail(function (err) {
     console.log(err);
@@ -70,8 +91,7 @@ function drawChart(chart, data, options) {
 }
 
 function loadGitHubStarStats() {
-  const container = document.getElementById('js-chart-div')
-  let chart = new google.charts.Line(container);
+  let chart = new google.charts.Line(DOM_CHART_CONTAINER);
 
   //  /#/{author}/{repository}
   let [_, author, repository] = window.location.hash.split('/', 3);
@@ -94,7 +114,7 @@ function loadGitHubStarStats() {
     drawChart(chart, githubStarDataToGraphData(stars), options);
   }).catch(error => {
     console.log(error);
-    container.innerText = error;
+    DOM_CHART_CONTAINER.innerText = error;
   });
 }
 
