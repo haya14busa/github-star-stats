@@ -6,6 +6,9 @@
   "dependencies": {
     "babel-cli": "^6.9.0",
     "chart.js": "^2.1.4",
+    "oauthio-web": "^0.5.2",
+    "parse-link-header": "^0.4.1",
+    "q": "^1.4.1",
     "whatwg-fetch": "^1.0.0"
   },
   "scripts": {

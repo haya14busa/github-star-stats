@@ -7,7 +7,15 @@
 <body>
   <h1>GitHub stats</h1>
 
-  <!-- <canvas id="chart-canvas" width="400" height="400"></canvas> -->
+  <p id="authorize-info" style="display: none;">
+    TODO: show authorize info
+  </p>
+
+  <p>
+    <button id="authorize-button" onclick="authorizeGitHub()">Authorize with GitHub</button>
+    <button onclick="loadGitHubStarStats()">Reload graph</button>
+  </p>
+
   <div id="js-chart-div" width="400" height="400">Loading...</div>
 
   <!-- script -->
