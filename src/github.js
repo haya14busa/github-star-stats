@@ -35,9 +35,13 @@ function allPagenatedResult(first_page_url) {
 
 function handleErrors(response) {
   if (!response.ok) {
-    return response.json().then(json => {
-      throw Error(json.message);
-    });
+    if (response.status === 403) {
+      const resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
+      const mes = `GitHub API Limit Exceeded: Try again after ${resetTime}`;
+      throw Error(mes);
+    } else {
+      throw Error(response.statusText);
+    }
   }
   return response;
 }
