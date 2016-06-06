@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>GitHub stats</title>
+  <title>GitHub Star Stats</title>
 </head>
 <body>
-  <h1>GitHub stats</h1>
+  <h1>GitHub Star Stats</h1>
 
   <p id="authorize-info" style="display: none;">
     Login as
@@ -17,6 +17,18 @@
     <button id="authorize-button" onclick="authorizeGitHub()">Authorize with GitHub</button>
     <button onclick="loadGitHubStarStats()">Reload graph</button>
   </p>
+
+  <div>
+    <p>See the growth of the number of stars of a repository by accessing /#/{author}/{repository}.</p>
+
+    <p>e.g. If you want to see the growth of <a href="https://github.com/haya14busa/incsearch.vim">https://github.com/haya14busa/incsearch.vim</a>,
+      please access <a href="http://haya14busa.github.io/github-star-stats/#/haya14busa/incsearch.vim">http://haya14busa.github.io/github-star-stats/#/haya14busa/incsearch.vim</a>
+    </p>
+
+    <p>I highly recommend you to authorize GitHub account because API access rate limit is too small without authorization.</p>
+  </div>
+
+  <hr />
 
   <div id="js-chart-div" width="400" height="400">Loading...</div>
 
