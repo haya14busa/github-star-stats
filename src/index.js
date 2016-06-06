@@ -104,6 +104,11 @@ function loadGitHubStarStats() {
   }
 
   starsForRepo(author, repository, GITHUB_ACCESS_TOKEN).then((stars) => {
+    if (stars.length < 1) {
+      DOM_CHART_CONTAINER.innerText = `There are no stars for ${author}/${repository}`;
+      return;
+    }
+
     const options = {
       chart: {
         title: `GitHub stargazers stats ${author}/${repository}`

@@ -4340,6 +4340,11 @@ function loadGitHubStarStats() {
   }
 
   (0, _github.starsForRepo)(author, repository, GITHUB_ACCESS_TOKEN).then(function (stars) {
+    if (stars.length < 1) {
+      DOM_CHART_CONTAINER.innerText = 'There are no stars for ' + author + '/' + repository;
+      return;
+    }
+
     var options = {
       chart: {
         title: 'GitHub stargazers stats ' + author + '/' + repository
