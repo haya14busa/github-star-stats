@@ -44,7 +44,7 @@ function allPagenatedResult(first_page_url, access_token) {
     return fetch(url, options).then(handleErrors).then(res => {
       let link = parseLinkHeader(res.headers.get('Link'));
       let promises = ps.concat(res.json());
-      return link.next ? go(link.next.url, promises) : promises;
+      return link && link.next ? go(link.next.url, promises) : promises;
     });
   };
   return go(first_page_url, []);
