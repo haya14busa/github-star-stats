@@ -20,7 +20,14 @@ function onLoadGoogleChartAPI() {
   }
 
   starsForRepo(author, repository).then((stars) => {
-    drawChart(chart, githubStarDataToGraphData(stars));
+    const options = {
+      chart: {
+        title: `GitHub stargazers stats ${author}/${repository}`
+      },
+      width: 1200,
+      height: 500
+    };
+    drawChart(chart, githubStarDataToGraphData(stars), options);
   }).catch(error => {
     console.log(error);
     container.innerText = error;
@@ -37,7 +44,7 @@ function githubStarDataToGraphData(githubStarData) {
   });
 }
 
-function drawChart(chart, data) {
+function drawChart(chart, data, options) {
   let dataTable = new google.visualization.DataTable();
   dataTable.addColumn('date', 'Date');
   dataTable.addColumn('number', 'stars');
@@ -47,5 +54,6 @@ function drawChart(chart, data) {
   dataTable.addColumn({type: 'string', role: 'annotationText'});
 
   dataTable.addRows(data);
-  chart.draw(dataTable, {});
+
+  chart.draw(dataTable, options);
 }

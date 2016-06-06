@@ -4171,13 +4171,26 @@ function starsForRepo(author, repoName) {
 
 function allPagenatedResult(first_page_url) {
   var go = function go(url, ps) {
-    return fetch(url, options).then(function (res) {
+    return fetch(url, options).then(handleErrors).then(function (res) {
       var link = (0, _parseLinkHeader2.default)(res.headers.get('Link'));
       var promises = ps.concat(res.json());
       return link.next ? go(link.next.url, promises) : promises;
     });
   };
   return go(first_page_url, []);
+}
+
+function handleErrors(response) {
+  if (!response.ok) {
+    if (response.status === 403) {
+      var resetTime = new Date(response.headers.get('X-RateLimit-Reset') * 1000);
+      var mes = 'GitHub API Limit Exceeded: Try again after ' + resetTime;
+      throw Error(mes);
+    } else {
+      throw Error(response.statusText);
+    }
+  }
+  return response;
 }
 
 },{"parse-link-header":1,"q":3,"whatwg-fetch":11}],13:[function(require,module,exports){
@@ -4221,7 +4234,17 @@ function onLoadGoogleChartAPI() {
   }
 
   (0, _github.starsForRepo)(author, repository).then(function (stars) {
-    drawChart(chart, githubStarDataToGraphData(stars));
+    var options = {
+      chart: {
+        title: 'GitHub stargazers stats ' + author + '/' + repository
+      },
+      width: 1200,
+      height: 500
+    };
+    drawChart(chart, githubStarDataToGraphData(stars), options);
+  }).catch(function (error) {
+    console.log(error);
+    container.innerText = error;
   });
 }
 
@@ -4234,7 +4257,7 @@ function githubStarDataToGraphData(githubStarData) {
   });
 }
 
-function drawChart(chart, data) {
+function drawChart(chart, data, options) {
   var dataTable = new google.visualization.DataTable();
   dataTable.addColumn('date', 'Date');
   dataTable.addColumn('number', 'stars');
@@ -4244,7 +4267,8 @@ function drawChart(chart, data) {
   dataTable.addColumn({ type: 'string', role: 'annotationText' });
 
   dataTable.addRows(data);
-  chart.draw(dataTable, {});
+
+  chart.draw(dataTable, options);
 }
 
 },{"./github.js":12}]},{},[13])

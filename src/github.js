@@ -1,4 +1,4 @@
-// curl -v -H "Accept: application/vnd.github.v3.star+json" 'https://api.github.com/repos/haya14busa/incsearch.vim/stargazers' 
+// curl -v -H "Accept: application/vnd.github.v3.star+json" 'https://api.github.com/repos/haya14busa/incsearch.vim/stargazers'
 import 'whatwg-fetch';
 import q from 'q';
 import parseLinkHeader from 'parse-link-header';
