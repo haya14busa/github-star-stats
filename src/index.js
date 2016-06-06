@@ -21,6 +21,9 @@ function onLoadGoogleChartAPI() {
 
   starsForRepo(author, repository).then((stars) => {
     drawChart(chart, githubStarDataToGraphData(stars));
+  }).catch(error => {
+    console.log(error);
+    container.innerText = error;
   });
 }
 
