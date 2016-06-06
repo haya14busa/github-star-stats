@@ -4183,6 +4183,8 @@ function allPagenatedResult(first_page_url) {
 },{"parse-link-header":1,"q":3,"whatwg-fetch":11}],13:[function(require,module,exports){
 'use strict';
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var _github = require('./github.js');
 
 // Load the Visualization API and the linechart package.
@@ -4195,7 +4197,30 @@ function onLoadGoogleChartAPI() {
   var container = document.getElementById('js-chart-div');
   var chart = new google.charts.Line(container);
 
-  (0, _github.starsForRepo)('haya14busa', 'incsearch.vim').then(function (stars) {
+  //  /#/{author}/{repository}
+
+  var _window$location$hash = window.location.hash.split('/', 3);
+
+  var _window$location$hash2 = _slicedToArray(_window$location$hash, 3);
+
+  var _ = _window$location$hash2[0];
+  var author = _window$location$hash2[1];
+  var repository = _window$location$hash2[2];
+
+
+  if (!author || !repository) {
+    var _window$prompt$split = window.prompt('Input {author}/{repository}').split('/', 2);
+
+    var _window$prompt$split2 = _slicedToArray(_window$prompt$split, 2);
+
+    author = _window$prompt$split2[0];
+    repository = _window$prompt$split2[1];
+
+    window.location.href = '/#/' + author + '/' + repository;
+    return;
+  }
+
+  (0, _github.starsForRepo)(author, repository).then(function (stars) {
     drawChart(chart, githubStarDataToGraphData(stars));
   });
 }

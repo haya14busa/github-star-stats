@@ -10,7 +10,16 @@ function onLoadGoogleChartAPI() {
   const container = document.getElementById('js-chart-div')
   let chart = new google.charts.Line(container);
 
-  starsForRepo('haya14busa', 'incsearch.vim').then((stars) => {
+  //  /#/{author}/{repository}
+  let [_, author, repository] = window.location.hash.split('/', 3);
+
+  if (!author || !repository) {
+    [author, repository] = window.prompt('Input {author}/{repository}').split('/', 2);
+    window.location.href = `/#/${author}/${repository}`;
+    return;
+  }
+
+  starsForRepo(author, repository).then((stars) => {
     drawChart(chart, githubStarDataToGraphData(stars));
   });
 }
