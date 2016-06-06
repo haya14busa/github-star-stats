@@ -1,22 +1,39 @@
-// curl -v -H "Accept: application/vnd.github.v3.star+json" 'https://api.github.com/repos/haya14busa/incsearch.vim/stargazers'
+import { starsForRepo } from './github.js';
 
-import 'whatwg-fetch';
+// Load the Visualization API and the linechart package.
+google.charts.load('current', {packages: ['line']});
 
-const BASE_URL = 'https://api.github.com';
+// Set a callback to run when the Google Visualization API is loaded.
+google.charts.setOnLoadCallback(onLoadGoogleChartAPI);
 
-let headers = new Headers();
-headers.set('Accept', 'application/vnd.github.v3.star+json');
+function onLoadGoogleChartAPI() {
+  const container = document.getElementById('js-chart-div')
+  let chart = new google.charts.Line(container);
 
-const options = {
-  method: 'GET',
-  headers: headers,
+  starsForRepo('haya14busa', 'incsearch.vim').then((stars) => {
+    drawChart(chart, githubStarDataToGraphData(stars));
+  });
 }
 
-fetch(BASE_URL + '/repos/haya14busa/incsearch.vim/stargazers', options)
-  .then((response) => {
-    return response.json()
-  }).then((json) => {
-    console.log(json);
-  }).catch((error) => {
-    console.log(error);
+function githubStarDataToGraphData(githubStarData) {
+  return githubStarData.map((d, i) => {
+    return [
+      /* date:  */ new Date(d.starred_at),
+      /* stars: */ i + 1,
+      /* user: */ d.user.login,
+    ];
   });
+}
+
+function drawChart(chart, data) {
+  let dataTable = new google.visualization.DataTable();
+  dataTable.addColumn('date', 'Date');
+  dataTable.addColumn('number', 'stars');
+
+  // Material design chart does not support this now (2016-06-06)
+  // ref: https://developers.google.com/chart/interactive/docs/gallery/linechart#creating-material-line-charts
+  dataTable.addColumn({type: 'string', role: 'annotationText'});
+
+  dataTable.addRows(data);
+  chart.draw(dataTable, {});
+}
